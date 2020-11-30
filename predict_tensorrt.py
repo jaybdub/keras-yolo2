@@ -32,7 +32,7 @@ class YOLOTRT(object):
 
         input_image = image[:,:,::-1] # bgr -> rgb
         input_image = np.expand_dims(input_image, 0)
-        output_shape = (1,) + tuple(self.engine.get_binding_shape(1))
+        output_shape = tuple(self.engine.get_binding_shape(1))
         output_gpu = gpuarray.empty(output_shape, np.float32)
         input_image_gpu = gpuarray.to_gpu(input_image.astype(np.float32))
 
