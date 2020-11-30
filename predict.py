@@ -1,8 +1,14 @@
 #! /usr/bin/env python
 
+import pycuda.gpuarray as gpuarray
+import pycuda.driver as cuda
+import pycuda.autoinit
+(free0,total0)=cuda.mem_get_info()
+
 import argparse
 import os
 import cv2
+import time
 import numpy as np
 from tqdm import tqdm
 from preprocessing import parse_annotation
@@ -85,8 +91,15 @@ def _main_(args):
     else:
         image = cv2.imread(image_path)
         boxes = yolo.predict(image)
+        
+        # timing
+        t0 = time.time()
+        for i in range(50):
+            yolo.predict(image)
+        t1 = time.time()
+        print('throughput: %f FPS' % (50 / (t1 - t0)))
+        
         image = draw_boxes(image, boxes, config['model']['labels'])
-
         print(len(boxes), 'boxes are found')
 
         cv2.imwrite(image_path[:-4] + '_detected' + image_path[-4:], image)
@@ -94,3 +107,7 @@ def _main_(args):
 if __name__ == '__main__':
     args = argparser.parse_args()
     _main_(args)
+    
+    (free1,total1)=cuda.mem_get_info()
+    
+    print('memory used: %dMB' % ((free0 - free1) / 1e6))

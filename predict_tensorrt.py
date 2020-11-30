@@ -4,8 +4,11 @@ import cv2
 import pycuda.gpuarray as gpuarray
 import pycuda.driver as cuda
 import pycuda.autoinit
+(free0,total0)=cuda.mem_get_info()
+
 import numpy as np
 import json
+import time
 
 
 class YOLOTRT(object):
@@ -85,9 +88,20 @@ if __name__ == '__main__':
     
     image = cv2.imread(args.input)
     boxes = yolo.predict(image)
-    print(boxes)
+    
+    
+        # timing
+    t0 = time.time()
+    for i in range(50):
+        yolo.predict(image)
+    t1 = time.time()
+    print('throughput: %f FPS' % (50 / (t1 - t0)))
+        
     image = draw_boxes(image, boxes, config['model']['labels'])
 
+    (free1,total1)=cuda.mem_get_info()
+    
+    print('memory used: %dMB' % ((free0 - free1) / (1e6)))
     print(len(boxes), 'boxes are found')
 
     image_path = args.input
