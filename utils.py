@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import xml.etree.ElementTree as ET
-import tensorflow as tf
+# import tensorflow as tf  # tensorflow not used
 import copy
 import cv2
 
